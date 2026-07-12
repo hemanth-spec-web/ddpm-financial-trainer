@@ -15,6 +15,8 @@ class ExperimentCreate(BaseModel):
     learning_rate: float = Field(2e-4, gt=0, lt=0.1)
     sequence_length: int = Field(128, ge=32, le=512)
     d_model: int = Field(64, ge=16, le=256)
+    data_source: str = Field("synthetic", pattern="^(synthetic|financial)$")
+    ticker: str = Field("^GSPC", max_length=20)
 
 
 class ExperimentOut(BaseModel):
@@ -29,12 +31,15 @@ class ExperimentOut(BaseModel):
     learning_rate: float
     sequence_length: int
     d_model: int
+    data_source: str
+    ticker: Optional[str]
     status: ExperimentStatus
     current_epoch: int
     train_losses: list
     final_loss: Optional[float]
     metrics: dict
     generated_samples: dict
+    model_weights_path: Optional[str]
     created_at: datetime
     completed_at: Optional[datetime]
 

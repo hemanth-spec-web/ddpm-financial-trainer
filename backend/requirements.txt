@@ -16,3 +16,5 @@ numpy==2.3.0
 matplotlib==3.10.3
 python-dotenv==1.0.1
 websockets==13.1
+psycopg2-binary>=2.9
+yfinance

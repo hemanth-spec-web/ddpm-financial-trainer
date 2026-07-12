@@ -4,6 +4,8 @@ backend/.env
 *.pyc
 .env
 
+backend/model_weights/*.pt
+
 # Node
 node_modules/
 dist/

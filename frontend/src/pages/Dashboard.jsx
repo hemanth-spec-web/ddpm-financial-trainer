@@ -21,6 +21,8 @@ export default function Dashboard() {
     beta_start: 0.0001,
     beta_end: 0.02,
     sequence_length: 256,
+    data_source: "synthetic",
+    ticker: "^GSPC",
   });
 
   const fetchExperiments = async () => {
@@ -152,6 +154,30 @@ export default function Dashboard() {
               />
             </div>
           </div>
+          <div style={styles.formRow}>
+            <div style={styles.formGroup}>
+              <label style={styles.label}>Data Source</label>
+              <select
+                style={styles.input}
+                value={form.data_source}
+                onChange={(e) => setForm({ ...form, data_source: e.target.value })}
+              >
+                <option value="synthetic">Synthetic (sine waves)</option>
+                <option value="financial">Real Financial Data</option>
+              </select>
+            </div>
+            {form.data_source === "financial" && (
+              <div style={styles.formGroup}>
+                <label style={styles.label}>Ticker Symbol</label>
+                <input
+                  style={styles.input}
+                  value={form.ticker}
+                  onChange={(e) => setForm({ ...form, ticker: e.target.value })}
+                  placeholder="^GSPC"
+                />
+              </div>
+            )}
+          </div>
           <button type="submit" style={styles.submitBtn} disabled={creating}>
             {creating ? "Running Phase 1..." : "Create & Run"}
           </button>
@@ -177,6 +203,9 @@ export default function Dashboard() {
                 <span>T={exp.T}</span>
                 <span>β: {exp.beta_start}→{exp.beta_end}</span>
                 <span>L={exp.sequence_length}</span>
+                {exp.data_source === "financial" && (
+                  <span style={{ color: "#e8b44b" }}>📈 {exp.ticker}</span>
+                )}
               </div>
               <div style={styles.cardActions}>
                 <button

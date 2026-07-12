@@ -11,3 +11,9 @@ export const getExperiment = (id) =>
 
 export const deleteExperiment = (id) =>
   api.delete(`/api/experiments/${id}`);
+
+export const startTraining = (id) =>
+  api.post(`/api/experiments/${id}/train`);
+
+export const generateSamples = (id, nSamples = 4) =>
+  api.post(`/api/experiments/${id}/generate?n_samples=${nSamples}`);

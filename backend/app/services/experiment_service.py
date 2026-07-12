@@ -33,6 +33,8 @@ async def create_and_run_phase1_experiment(
         learning_rate=data.learning_rate,
         sequence_length=data.sequence_length,
         d_model=data.d_model,
+        data_source=data.data_source,
+        ticker=data.ticker,
         status=ExperimentStatus.RUNNING,
     )
     db.add(experiment)

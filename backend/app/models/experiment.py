@@ -32,7 +32,9 @@ class Experiment(Base):
     learning_rate: Mapped[float] = mapped_column(Float, default=2e-4)
     sequence_length: Mapped[int] = mapped_column(Integer, default=128)
     d_model: Mapped[int] = mapped_column(Integer, default=64)
-
+    data_source: Mapped[str] = mapped_column(String, default="synthetic")  # "synthetic" or "financial"
+    ticker: Mapped[str] = mapped_column(String, default="^GSPC", nullable=True)
+    
     # Status and results
     status: Mapped[ExperimentStatus] = mapped_column(
         Enum(ExperimentStatus), default=ExperimentStatus.PENDING
@@ -42,7 +44,8 @@ class Experiment(Base):
     final_loss: Mapped[float] = mapped_column(Float, nullable=True)
     metrics: Mapped[dict] = mapped_column(JSON, default=dict)  # SNR, stylized facts etc.
     generated_samples: Mapped[dict] = mapped_column(JSON, default=dict)  # plot data
-
+    model_weights_path: Mapped[str] = mapped_column(String, nullable=True)
+    
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
     )
@@ -50,3 +53,4 @@ class Experiment(Base):
 
     # relationships
     user: Mapped["User"] = relationship(back_populates="experiments")
+    

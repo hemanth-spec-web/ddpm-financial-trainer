@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from fastapi import APIRouter, Depends, status, HTTPException
 from app.db.session import get_db
 from app.api.deps import get_current_user
 from app.models.user import User
@@ -11,6 +12,8 @@ from app.services.experiment_service import (
     list_experiments,
     delete_experiment,
 )
+from app.tasks.training_tasks import train_ddpm_task
+from app.tasks.generation_tasks import generate_samples_task
 
 router = APIRouter(prefix="/api/experiments", tags=["experiments"])
 
@@ -49,3 +52,29 @@ async def remove_experiment(
     current_user: User = Depends(get_current_user),
 ):
     await delete_experiment(db, current_user.id, experiment_id)
+
+@router.post("/{experiment_id}/train", status_code=status.HTTP_202_ACCEPTED)
+async def start_training(
+    experiment_id: str,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    experiment = await get_experiment(db, current_user.id, experiment_id)
+    task = train_ddpm_task.delay(experiment_id)
+    return {"message": "Training started", "task_id": task.id}
+
+@router.post("/{experiment_id}/generate", status_code=status.HTTP_202_ACCEPTED)
+async def start_generation(
+    experiment_id: str,
+    n_samples: int = 4,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    experiment = await get_experiment(db, current_user.id, experiment_id)
+    if not experiment.model_weights_path:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Model must be trained before generating samples",
+        )
+    task = generate_samples_task.delay(experiment_id, n_samples)
+    return {"message": "Generation started", "task_id": task.id}
