@@ -14,6 +14,8 @@ from app.services.experiment_service import (
 )
 from app.tasks.training_tasks import train_ddpm_task
 from app.tasks.generation_tasks import generate_samples_task
+from app.core.config import settings
+from app.services.task_runner import execute_training, execute_generation
 
 router = APIRouter(prefix="/api/experiments", tags=["experiments"])
 
@@ -60,8 +62,16 @@ async def start_training(
     current_user: User = Depends(get_current_user),
 ):
     experiment = await get_experiment(db, current_user.id, experiment_id)
-    task = train_ddpm_task.delay(experiment_id)
-    return {"message": "Training started", "task_id": task.id}
+
+    if settings.USE_CELERY:
+        task = train_ddpm_task.delay(experiment_id)
+        return {"message": "Training started", "task_id": task.id}
+    else:
+        # Free-tier fallback: run synchronously in-process.
+        # Fine for small epoch counts; blocks the request until done.
+        result = execute_training(experiment_id)
+        return {"message": "Training completed", "result": result}
+
 
 @router.post("/{experiment_id}/generate", status_code=status.HTTP_202_ACCEPTED)
 async def start_generation(
@@ -76,5 +86,10 @@ async def start_generation(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Model must be trained before generating samples",
         )
-    task = generate_samples_task.delay(experiment_id, n_samples)
-    return {"message": "Generation started", "task_id": task.id}
+
+    if settings.USE_CELERY:
+        task = generate_samples_task.delay(experiment_id, n_samples)
+        return {"message": "Generation started", "task_id": task.id}
+    else:
+        result = execute_generation(experiment_id, n_samples)
+        return {"message": "Generation completed", "result": result}

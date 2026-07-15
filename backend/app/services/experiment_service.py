@@ -36,7 +36,7 @@ async def create_and_run_phase1_experiment(
         data_source=data.data_source,
         ticker=data.ticker,
         status=ExperimentStatus.RUNNING,
-    )
+    )                       
     db.add(experiment)
     await db.flush()
 

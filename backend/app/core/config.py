@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
     FRONTEND_URL: str = "http://localhost:5173"
+    USE_CELERY: bool = True   # False on free-tier deployment (runs tasks synchronously in-process)
 
     class Config:
         env_file = ".env"
