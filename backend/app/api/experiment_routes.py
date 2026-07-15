@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
+import asyncio
 
 from fastapi import APIRouter, Depends, status, HTTPException
 from app.db.session import get_db
@@ -67,8 +68,6 @@ async def start_training(
         task = train_ddpm_task.delay(experiment_id)
         return {"message": "Training started", "task_id": task.id}
     else:
-        # Free-tier safety limits — prevent OOM crashes from large runs
-        # on Render's 512MB memory ceiling.
         if experiment.epochs > 20 or experiment.sequence_length > 128 or experiment.d_model > 32:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -78,9 +77,13 @@ async def start_training(
                     "and d_model ≤ 32. Larger runs are demonstrated in the project README/video."
                 ),
             )
-        result = execute_training(experiment_id)
-        return {"message": "Training completed", "result": result}
-
+        # Run in a background thread so it doesn't block the single-worker
+        # event loop — the free-tier deployment has no Celery, but we still
+        # need the server to stay responsive to other requests (like status
+        # polling) while training runs.
+        asyncio.create_task(asyncio.to_thread(execute_training, experiment_id))
+        return {"message": "Training started in background"}
+    
 
 @router.post("/{experiment_id}/generate", status_code=status.HTTP_202_ACCEPTED)
 async def start_generation(
