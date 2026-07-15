@@ -20,7 +20,7 @@ export default function Dashboard() {
     T: 1000,
     beta_start: 0.0001,
     beta_end: 0.02,
-    sequence_length: 256,
+    sequence_length: 128,
     data_source: "synthetic",
     ticker: "^GSPC",
   });
