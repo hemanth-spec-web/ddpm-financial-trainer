@@ -68,13 +68,13 @@ async def start_training(
         task = train_ddpm_task.delay(experiment_id)
         return {"message": "Training started", "task_id": task.id}
     else:
-        if experiment.epochs > 20 or experiment.sequence_length > 128 or experiment.d_model > 32:
+        if experiment.epochs > 5 or experiment.sequence_length > 32 or experiment.d_model > 8:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=(
                     "This demo environment runs on a free-tier server with limited memory. "
-                    "For live training here, please use epochs ≤ 20, sequence_length ≤ 128, "
-                    "and d_model ≤ 32. Larger runs are demonstrated in the project README/video."
+                    "For live training here, please use epochs ≤ 5, sequence_length ≤ 32, "
+                    "and d_model ≤ 8. Larger runs are demonstrated in the project README/video."
                 ),
             )
         # Run in a background thread so it doesn't block the single-worker

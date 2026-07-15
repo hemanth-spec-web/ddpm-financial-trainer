@@ -48,10 +48,10 @@ export default function Dashboard() {
     try {
       await createExperiment({
         ...form,
-        epochs: 15,
-        batch_size: 16,
+        epochs: 5,
+        batch_size: 8,
         learning_rate: 0.0002,
-        d_model: 16,
+        d_model: 8,
       });
       setShowForm(false);
       setForm({ ...form, name: "", description: "" });
