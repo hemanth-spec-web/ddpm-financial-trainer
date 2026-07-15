@@ -67,8 +67,17 @@ async def start_training(
         task = train_ddpm_task.delay(experiment_id)
         return {"message": "Training started", "task_id": task.id}
     else:
-        # Free-tier fallback: run synchronously in-process.
-        # Fine for small epoch counts; blocks the request until done.
+        # Free-tier safety limits — prevent OOM crashes from large runs
+        # on Render's 512MB memory ceiling.
+        if experiment.epochs > 20 or experiment.sequence_length > 128 or experiment.d_model > 32:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=(
+                    "This demo environment runs on a free-tier server with limited memory. "
+                    "For live training here, please use epochs ≤ 20, sequence_length ≤ 128, "
+                    "and d_model ≤ 32. Larger runs are demonstrated in the project README/video."
+                ),
+            )
         result = execute_training(experiment_id)
         return {"message": "Training completed", "result": result}
 
