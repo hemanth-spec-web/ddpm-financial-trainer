@@ -20,7 +20,7 @@ export default function Dashboard() {
     T: 1000,
     beta_start: 0.0001,
     beta_end: 0.02,
-    sequence_length: 128,
+    sequence_length: 32,
     data_source: "synthetic",
     ticker: "^GSPC",
   });
@@ -57,7 +57,13 @@ export default function Dashboard() {
       setForm({ ...form, name: "", description: "" });
       fetchExperiments();
     } catch (err) {
-      setError(err.response?.data?.detail || "Failed to create experiment");
+      const detail = err.response?.data?.detail;
+      const message = typeof detail === "string"
+        ? detail
+        : Array.isArray(detail)
+          ? detail.map((d) => d.msg).join(", ")
+          : "Failed to create experiment";
+      setError(message);
     } finally {
       setCreating(false);
     }

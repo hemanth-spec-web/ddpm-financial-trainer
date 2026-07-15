@@ -14,7 +14,7 @@ class ExperimentCreate(BaseModel):
     batch_size: int = Field(64, ge=8, le=256)
     learning_rate: float = Field(2e-4, gt=0, lt=0.1)
     sequence_length: int = Field(128, ge=32, le=512)
-    d_model: int = Field(64, ge=16, le=256)
+    d_model: int = Field(64, ge=4, le=256)
     data_source: str = Field("synthetic", pattern="^(synthetic|financial)$")
     ticker: str = Field("^GSPC", max_length=20)
 
