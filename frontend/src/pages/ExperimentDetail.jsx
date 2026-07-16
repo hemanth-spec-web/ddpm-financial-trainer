@@ -185,9 +185,17 @@ export default function ExperimentDetail() {
             ✓ Training complete — final loss: <strong style={{ color: "#00e5a0" }}>{exp.final_loss}</strong>
           </p>
         ) : (
-          <button style={styles.trainBtn} onClick={handleStartTraining} disabled={starting}>
-            {starting ? "Starting..." : "▶ Start Training"}
-          </button>
+          <div>
+            <p style={styles.demoNotice}>
+              Live training is disabled on this free-tier deployment (CPU too limited for
+              PyTorch training in real time). The full training pipeline runs locally via
+              Celery + Redis background workers — see the{" "}
+              <a href="https://github.com/hemanth-spec-web/ddpm-financial-trainer" style={{ color: "#5b9cf6" }}>
+                GitHub repo
+              </a>{" "}
+              for the complete implementation and real training results.
+            </p>
+          </div>
         )}
       </div>
 
@@ -219,9 +227,10 @@ export default function ExperimentDetail() {
             to reverse the diffusion process 1000 steps back to a clean signal.
           </p>
           {modelGenerated.length === 0 ? (
-            <button style={styles.trainBtn} onClick={handleGenerate} disabled={generating}>
-              {generating ? "Generating... (~30s)" : "✨ Generate New Samples"}
-            </button>
+            <p style={styles.demoNotice}>
+              Sample generation requires a trained model, which isn't available in this
+              read-only demo mode.
+            </p>
           ) : (
             <>
               {modelGenerated.map((seq, i) => {
@@ -364,6 +373,7 @@ function statusStyle(status) {
 }
 
 const styles = {
+  demoNotice: { fontSize: "12.5px", color: "#8893a8", lineHeight: "1.6", background: "#0d1520", border: "1px solid #1f2535", borderRadius: "4px", padding: "14px" },
   page: { minHeight: "100vh", background: "#06080d", padding: "32px", fontFamily: "'Inter', sans-serif", maxWidth: "1000px", margin: "0 auto" },
   backBtn: { background: "transparent", border: "none", color: "#5b9cf6", fontSize: "13px", cursor: "pointer", marginBottom: "20px", padding: 0 },
   header: { marginBottom: "24px" },
