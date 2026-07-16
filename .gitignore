@@ -10,6 +10,8 @@ backend/model_weights/*.pt
 node_modules/
 dist/
 
+frontend/.env
+
 # Editors
 .vscode/
 .idea/
@@ -20,3 +22,10 @@ Thumbs.db
 
 # Logs
 *.log
+
+# One-off local scripts with credentials — never commit
+backend/check_seed.py
+backend/export_experiment.py
+backend/fix_seed.py
+backend/seed_render_db.py
+backend/seed_experiment.json
